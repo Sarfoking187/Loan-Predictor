@@ -134,7 +134,7 @@ def Home_Page():
     |--------------------------|------------|----------------------------------------------|-------------------------------|
     | Kingsley Sarfo           | 22252461   | Project Coordination, App Design & Preprocessing | https://loan-predictor-hbbz24vwfzaue2qx4hwcat.streamlit.app |                           |
     | Francisca Manu Sarpong   | 22255796   | Documentation & Deployment                  | https://kftalde5ypwd5a3qqejuvo.streamlit.app |               
-    | George Owell             | 22256146   | Model Evaluation & Cross-validation         |                                |
+    | George Owell             | 22256146   | Model Evaluation & Cross-validation         | loandefaultpredictionapp-utmbic9znd7uzqqhs9zgo6.streamlit.app |                             |
     | Barima Owiredu Addo      | 22254055   | UI & Prediction Testing                     |                       |
     | Akrobettoe Marcus        | 11410687   | Feature Selection & Model Training          | https://models-loan-default-prediction.streamlit.app/ |
 
@@ -773,3 +773,4 @@ pages = {
 
 selection = st.sidebar.selectbox("Select Page", list(pages.keys()))
 pages[selection]()
+

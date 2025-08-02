@@ -124,7 +124,7 @@ streamlit run app.py
 
 | Name                   | Student ID | Role                                             | Deployment Link                                          |
 | ---------------------- | ---------- | ------------------------------------------------ | -------------------------------------------------------- |
-| Kingsley Sarfo         | 22252461   | Project Coordination, App Design & Preprocessing | [App Link](https://group5-vvhhfpcyg6qkpbswhhtckw.streamlit.app) |
+| Kingsley Sarfo         | 22252461   | Project Coordination, App Design & Preprocessing | [App Link](https://loan-predictor-hbbz24vwfzaue2qx4hwcat.streamlit.app) |
 | Francisca Manu Sarpong | 22255796   | Documentation & Deployment                       | [App Link](https://kftalde5ypwd5a3qqejuvo.streamlit.app) |
 | George Owell           | 22256146   | Model Evaluation & Cross-validation              | —                                                        |
 | Barima Owiredu Addo    | 22254055   | UI & Prediction Testing                          | —                                                        |
@@ -152,5 +152,6 @@ MIT License. Feel free to use and modify with attribution.
 For inquiries or suggestions, please contact any member of **Group 5**.
 
 ```
+
 
 

@@ -118,6 +118,14 @@ def Home_Page():
     #FUNCTIONS
     st.title("Loan Default Prediction System")
 
+    st.write("""
+       Welcome to the Loan Default Prediction System. This application helps financial institutions 
+       assess the risk of loan default using machine learning.
+
+       Use the navigation menu on the left to explore different sections of the application.
+       """)
+
+    
     st.markdown("""---
 
     ## Team Members (Group 5)
@@ -133,12 +141,7 @@ def Home_Page():
     ---
     """)
 
-    st.write("""
-    Welcome to the Loan Default Prediction System. This application helps financial institutions 
-    assess the risk of loan default using machine learning.
-
-    Use the navigation menu on the left to explore different sections of the application.
-    """)
+   
 
 
 def Data_Import_and_Overview_page():

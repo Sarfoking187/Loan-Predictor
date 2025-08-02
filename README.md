@@ -153,7 +153,4 @@ For inquiries or suggestions, please contact any member of **Group 5**.
 
 ```
 
----
 
-Let me know if you also want a `requirements.txt` file or GitHub repository structure setup.
-```

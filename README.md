@@ -3,15 +3,15 @@ Here's a professional and comprehensive `README.md` file for your Streamlit-base
 ---
 
 ````markdown
-# 💸 Loan Default Prediction System
+# Loan Default Prediction System
 
 This is an interactive **Loan Default Prediction Web Application** built with **Streamlit**, leveraging machine learning and advanced data visualization techniques to assess the likelihood of loan default. It is designed for use by financial institutions, loan officers, and analysts to support data-driven decision-making.
 
 ---
 
-## 📌 Key Features
+## Key Features
 
-### ✅ Data Upload & EDA
+### Data Upload & EDA
 - Upload your own CSV loan dataset.
 - View descriptive statistics, missing value analysis, and feature summaries.
 - Visualize:
@@ -20,42 +20,42 @@ This is an interactive **Loan Default Prediction Web Application** built with **
   - Correlation heatmaps.
   - Interactive scatterplots (e.g., Debt-to-Income vs Credit Score).
 
-### 🧹 Data Preprocessing
+### Data Preprocessing
 - Intelligent pipeline for:
   - Missing value imputation (median for numeric, mode for categorical).
   - Standardization of numerical data.
   - One-hot encoding of categorical data.
 - Saves preprocessed dataset for reuse and model training.
 
-### 📊 Feature Selection
+### Feature Selection
 - Correlation-based filtering.
 - Sequential Feature Selector using Logistic Regression.
 - Interactive evaluation using metrics like accuracy, precision, recall, and F1.
 - Feature importance bar plots.
 
-### 🧠 Model Training
-- Trains a **Random Forest Classifier**.
+### Model Training
+- Trains a Random Forest Classifier.
 - Hyperparameter tuning (number of trees, depth, bootstrap settings).
 - 5-fold Cross-Validation.
 - Model is saved and reused for prediction and evaluation.
 
-### 📈 Model Evaluation
+### Model Evaluation
 - Displays confusion matrix.
 - Shows precision, recall, accuracy, and F1 Score.
 - Bar plot of feature importances.
 - Saves evaluation results for auditing.
 
-### 🧮 Interactive Predictions
+### Interactive Predictions
 - Input new applicant data via form.
 - Real-time default probability predictions.
 - Risk classification:
-  - ✅ Low Risk
-  - ⚠️ Medium Risk
-  - 🚨 High Risk
+  - Low Risk
+  - ⚠Medium Risk
+  - High Risk
 - Debt-to-income and collateral coverage ratios.
 - Risk factor detection and warning alerts.
 
-### 📘 Results Interpretation & Team Credits
+### Results Interpretation & Team Credits
 - Summary of model performance.
 - Business recommendations.
 - Limitations and future directions.
@@ -63,7 +63,7 @@ This is an interactive **Loan Default Prediction Web Application** built with **
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠Tech Stack
 
 | Technology     | Role                        |
 |----------------|-----------------------------|
@@ -77,7 +77,7 @@ This is an interactive **Loan Default Prediction Web Application** built with **
 
 ---
 
-## 🚀 How to Run Locally
+## How to Run Locally
 
 ### 1. Clone the Repository
 ```bash
@@ -106,7 +106,7 @@ streamlit run app.py
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 📁 saved_data/
@@ -120,19 +120,19 @@ streamlit run app.py
 
 ---
 
-## 👥 Team Members (Group 5)
+## Team Members (Group 5)
 
-| Name                   | Student ID | Role                                             | Deployment Link                                          |
-| ---------------------- | ---------- | ------------------------------------------------ | -------------------------------------------------------- |
-| Kingsley Sarfo         | 22252461   | Project Coordination, App Design & Preprocessing | [App Link](https://loan-predictor-hbbz24vwfzaue2qx4hwcat.streamlit.app) |
-| Francisca Manu Sarpong | 22255796   | Documentation & Deployment                       | [App Link](https://kftalde5ypwd5a3qqejuvo.streamlit.app) |
-| George Owell           | 22256146   | Model Evaluation & Cross-validation              | —                                                        |
-| Barima Owiredu Addo    | 22254055   | UI & Prediction Testing                          | —                                                        |
-| Akrobettoe Marcus      | 11410687   | Feature Selection & Model Training               |                                                          |
+    | Name                     | Student ID | Role                                             | Deployment link                                              |
+    |--------------------------|------------|--------------------------------------------------|--------------------------------------------------------------|
+    | Kingsley Sarfo           | 22252461   | Project Coordination, App Design & Preprocessing | https://loan-predictor-hbbz24vwfzaue2qx4hwcat.streamlit.app  |                   
+    | Francisca Manu Sarpong   | 22255796   | Documentation & Deployment                       | https://kftalde5ypwd5a3qqejuvo.streamlit.app |               
+    | George Owell             | 22256146   | Model Evaluation & Cross-validation              | loandefaultpredictionapp-utmbic9znd7uzqqhs9zgo6.streamlit.app|
+    | Barima Owiredu Addo      | 22254055   | UI & Prediction Testing                          | https://loandefaultapp-ky4yy9kmt6ehsq8jqdcgs2.streamlit.app/ |
+    | Akrobettoe Marcus        | 11410687   | Feature Selection & Model Training               | https://models-loan-default-prediction.streamlit.app/        |
 
 ---
 
-## 🧠 Future Improvements
+## Future Improvements
 
 * Add support for other ML models (e.g., XGBoost, Neural Networks).
 * Include additional features like employment history and credit history length.
@@ -141,17 +141,17 @@ streamlit run app.py
 
 ---
 
-## 📜 License
+## License
 
 MIT License. Feel free to use and modify with attribution.
 
 ---
 
-## 📬 Contact
+## Contact
 
 For inquiries or suggestions, please contact any member of **Group 5**.
 
-```
+
 
 
 

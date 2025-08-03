@@ -40,51 +40,70 @@ def load_artifact(filename):
 
 
 # DATA LOADING AND PREPROCESSING
-@st.cache_data  # Streamlit cache decorator for performance optimization
+@st.cache_data
 def load_data():
-    """Loads and caches raw loan data with initial cleaning:
-        - Drops irrelevant columns (ID, dtir1, etc.)
-        - Preserves the target variable 'Status' (1=default, 0=non-default)
-        - Saves cleaned data for reproducibility"""
-    df = pd.read_csv("Loan_Default.csv")
-    df = df.drop(columns=['ID', 'dtir1', 'submission_of_application', 'year'], errors='ignore')
-    df.to_csv(f"{DATA_DIR}/1_raw_data.csv", index=False)
-    return df
+    if 'uploaded_data' in st.session_state:
+        df = st.session_state['uploaded_data'].copy()
+        df = df.drop(columns=['ID', 'dtir1', 'submission_of_application', 'year'], errors='ignore')
+        df.to_csv(f"{DATA_DIR}/1_raw_data.csv", index=False)
+        return df
+    else:
+        st.warning("Please upload your dataset via the 'Data Import and Overview' page before preprocessing.")
+        return pd.DataFrame()  # Return empty DataFrame as a fallback
 
 
-def create_preprocessor(uploaded_file=None):
+# PREPROCESSOR CREATION
+def create_preprocessor():
     df = load_data()
+    if df.empty:
+        st.error("Data not loaded. Upload a dataset first.")
+        return None
+
+    if 'Status' not in df.columns:
+        st.error("'Status' column is missing. Cannot proceed.")
+        return None
+
     X = df.drop('Status', axis=1)
 
     # Feature type identification
     numerical_cols = X.select_dtypes(include=['int64', 'float64']).columns.tolist()
     categorical_cols = X.select_dtypes(include=['object']).columns.tolist()
 
-    # Save feature types for reference
     save_artifact({'numerical': numerical_cols, 'categorical': categorical_cols},
                   "2_column_types.pkl")
 
-    # Numerical pipeline
     numerical_transformer = Pipeline(steps=[
-        ('imputer', SimpleImputer(strategy='median')),  # Robust to outliers
-        ('scaler', StandardScaler())])  # Helps models like SVM and neural networks
+        ('imputer', SimpleImputer(strategy='median')),
+        ('scaler', StandardScaler())])
 
-    # Categorical pipeline
     categorical_transformer = Pipeline(steps=[
-        ('imputer', SimpleImputer(strategy='most_frequent')),  # Preserves mode
-        ('onehot', OneHotEncoder(handle_unknown='ignore'))])  # Handles new categories
+        ('imputer', SimpleImputer(strategy='most_frequent')),
+        ('onehot', OneHotEncoder(handle_unknown='ignore'))])
 
-    # Combined preprocessing
     preprocessor = ColumnTransformer(
         transformers=[
             ('num', numerical_transformer, numerical_cols),
             ('cat', categorical_transformer, categorical_cols)])
 
-    # # Fit and save the preprocessor
-    preprocessor.fit(X)
+    # Try to fit the preprocessor
+    try:
+        # DEBUG: log rows with any infinite or NaN
+        if not np.all(np.isfinite(X.select_dtypes(include=[np.number]))):
+            st.warning("⚠️ Found non-finite (NaN or Inf) values in numerical features.")
+            st.dataframe(X[~np.isfinite(X.select_dtypes(include=[np.number])).any(axis=1)])
+
+        preprocessor.fit(X)
+    except ValueError as ve:
+        st.error(f"ValueError during preprocessor fitting: {ve}")
+        st.dataframe(X.head())  # Show top of data to help with debugging
+        return None
+    except Exception as e:
+        st.error(f"Unexpected error during preprocessing: {e}")
+        return None
+
     save_artifact(preprocessor, "3_preprocessor.pkl")
 
-    # Transform and save processed data
+    # Transform and save
     X_processed = preprocessor.transform(X)
     num_features = preprocessor.named_transformers_['num'].get_feature_names_out()
     cat_features = preprocessor.named_transformers_['cat'].named_steps['onehot'].get_feature_names_out()
@@ -96,14 +115,17 @@ def create_preprocessor(uploaded_file=None):
 
     return preprocessor
 
-
+    # Check for all-NaN columns
+    null_cols = X.columns[X.isnull().all()].tolist()
+    if null_cols:
+        st.warning(f"The following columns are entirely missing and will break the pipeline: {null_cols}")
 
 
 # STREAMLIT PAGE FUNCTIONS
 def Home_Page():
 
     #LOGO
-    logo = Image.open("LDP.jpeg")
+    logo = Image.open("LDP.jpg")
     st.image(logo, caption="", width=300)
 
     #FUNCTIONS
@@ -153,7 +175,6 @@ def Data_Import_and_Overview_page():
             # Read the uploaded file
             df = pd.read_csv(uploaded_file)
             st.session_state['uploaded_data'] = df
-            st.session_state['uploaded_file'] = uploaded_file
             st.success("File successfully uploaded!")
 
             # ========================
@@ -336,122 +357,142 @@ def Data_Preprocessing_page():
         - Shows feature engineering details"""
 
     if st.button("Run Data Preprocessing"):
-        if 'uploaded_file' not in st.session_state:
-            st.warning("Please upload data first in the 'Data Import and Overview' page.")
-            return
+        preprocessor = create_preprocessor()
+        if preprocessor:
+            processed_df = pd.read_csv(f"{DATA_DIR}/4_processed_data.csv")
 
-        preprocessor = create_preprocessor(st.session_state['uploaded_file'])
-        processed_df = pd.read_csv(f"{DATA_DIR}/4_processed_data.csv")
+            st.subheader("Processed Data Sample")
+            st.dataframe(processed_df.head())
 
-        st.subheader("Processed Data Sample")
-        st.dataframe(processed_df.head())
+            st.subheader("Preprocessing Details")
+            st.write("Numerical features:", len(preprocessor.named_transformers_['num'].get_feature_names_out()))
+            st.write("Categorical features:",
+                     len(preprocessor.named_transformers_['cat'].named_steps['onehot'].get_feature_names_out()))
 
-        st.subheader("Preprocessing Details")
-        st.write("Numerical features:", len(preprocessor.named_transformers_['num'].get_feature_names_out()))
-        st.write("Categorical features:",
-                 len(preprocessor.named_transformers_['cat'].named_steps['onehot'].get_feature_names_out()))
-
-        st.success("Preprocessing completed and saved!")
+            st.success("Preprocessing completed and saved!")
 
 
 def Feature_Selection_page():
-    """Implements feature selection techniques:
-        1. Correlation-based filtering
-        2. Sequential Feature Selection (wrapper method)
-        3. Feature importance visualization
-        Uses cross-validation to evaluate feature subsets."""
+    """Optimized feature selection with caching, pre-filtering, and faster execution."""
 
     st.title("3. Feature Selection")
 
     try:
         processed_df = pd.read_csv(f"{DATA_DIR}/4_processed_data.csv")
-        X = processed_df.drop('Status', axis=1)
+        X_full = processed_df.drop('Status', axis=1)
         y = processed_df['Status']
     except:
-        st.warning("Please complete preprocessing first")
+        st.warning("Please complete preprocessing first.")
         return
 
-    # Correlation analysis
-    st.subheader("Initial Correlation Analysis")
+    # Compute correlations
+    st.subheader("Correlation Analysis")
     corr_matrix = processed_df.corr()
     corr_with_target = corr_matrix['Status'].sort_values(key=abs, ascending=False)
-    st.dataframe(corr_with_target.to_frame("Correlation"))
+    st.dataframe(corr_with_target.to_frame("Correlation with Target"))
 
-    # Best Subset Selection
-    st.subheader("Best Subset Selection")
-    st.write("""
-    This performs exhaustive search for the most predictive feature combinations.
-    Note: Computation time increases exponentially with more features.
-    """)
+    # Pre-filter top correlated features to reduce computation time
+    st.subheader("Feature Filtering")
+    top_n_corr = st.slider("Select number of top features to retain (based on correlation)", 5, 50, 20)
+    top_corr_features = corr_with_target.index[1:top_n_corr + 1]  # Exclude 'Status'
+    X = X_full[top_corr_features]
 
-    # User controls
-    max_features = st.slider("Maximum features to evaluate", 1, 15, 5)
-    scoring_metric = st.selectbox("Selection metric",
-                                  ['accuracy', 'precision', 'recall', 'f1'])
+    # Feature Selection Method
+    st.subheader("Feature Selection Method")
+    method = st.radio("Choose method", ["Sequential Feature Selection", "Random Forest Importance"])
 
-    if st.button("Run Best Subset Selection"):
-        with st.spinner("Searching for optimal feature combinations..."):
-            from sklearn.feature_selection import SequentialFeatureSelector
-            from sklearn.linear_model import LogisticRegression
+    max_features = st.slider("Maximum features to select", 1, min(15, len(X.columns)), 5)
+    scoring_metric = st.selectbox("Scoring metric", ['accuracy', 'precision', 'recall', 'f1'])
 
-            # Use logistic regression as base estimator for efficiency
-            estimator = LogisticRegression(max_iter=1000, random_state=42)
-            sfs = SequentialFeatureSelector(estimator,
-                                            n_features_to_select=max_features,
-                                            direction='forward',
-                                            scoring=scoring_metric,
-                                            cv=5)
+    # ✅ Fixed caching function with _estimator
+    @st.cache_resource
+    def run_sequential_selection(X, y, _estimator, max_features, scoring_metric):
+        from sklearn.feature_selection import SequentialFeatureSelector
+        sfs = SequentialFeatureSelector(
+            _estimator,
+            n_features_to_select=max_features,
+            direction='forward',
+            scoring=scoring_metric,
+            cv=5
+        )
+        sfs.fit(X, y)
+        return sfs
 
-            sfs.fit(X, y)
-            selected_features = X.columns[sfs.get_support()].tolist()
+    if st.button("Run Feature Selection"):
+        with st.spinner("Running feature selection... please wait..."):
 
-            # Save results
-            save_artifact({
-                'selected_features': selected_features,
-                'selection_metric': scoring_metric,
-                'support_mask': sfs.get_support()
-            }, "5_best_subset_features.pkl")
+            if method == "Sequential Feature Selection":
+                from sklearn.linear_model import LogisticRegression
+                estimator = LogisticRegression(solver='liblinear', max_iter=500, random_state=42)
 
-            # Display results
-            st.success(f"Selected {len(selected_features)} optimal features:")
-            st.write(selected_features)
+                # ✅ No change in call — only definition is fixed
+                sfs = run_sequential_selection(X, y, estimator, max_features, scoring_metric)
+                selected_features = X.columns[sfs.get_support()].tolist()
 
-            # Show performance metrics
-            st.subheader("Model Performance with Selected Features")
-            from sklearn.model_selection import cross_validate
-            cv_results = cross_validate(estimator,
-                                        X[selected_features],
-                                        y,
-                                        cv=5,
-                                        scoring=['accuracy', 'precision', 'recall', 'f1'])
+                save_artifact({
+                    'selected_features': selected_features,
+                    'selection_metric': scoring_metric,
+                    'support_mask': sfs.get_support()
+                }, "5_best_subset_features.pkl")
 
-            metrics_df = pd.DataFrame({
-                'Mean': [cv_results[f'test_{m}'].mean() for m in ['accuracy', 'precision', 'recall', 'f1']],
-                'Std': [cv_results[f'test_{m}'].std() for m in ['accuracy', 'precision', 'recall', 'f1']]
-            }, index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
+                st.success(f"Selected {len(selected_features)} features via SFS:")
+                st.write(selected_features)
 
-            st.dataframe(metrics_df.style.format("{:.2%}"))
+                # Cross-validation performance
+                from sklearn.model_selection import cross_validate
+                cv_results = cross_validate(estimator, X[selected_features], y, cv=5,
+                                            scoring=['accuracy', 'precision', 'recall', 'f1'])
 
-            # Feature importance plot
-            estimator.fit(X[selected_features], y)
-            if hasattr(estimator, 'coef_'):
-                importance = pd.Series(np.abs(estimator.coef_[0]),
-                                       index=selected_features).sort_values(ascending=False)
+                metrics_df = pd.DataFrame({
+                    'Mean': [cv_results[f'test_{m}'].mean() for m in ['accuracy', 'precision', 'recall', 'f1']],
+                    'Std': [cv_results[f'test_{m}'].std() for m in ['accuracy', 'precision', 'recall', 'f1']]
+                }, index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
+
+                st.subheader("Model Performance with Selected Features")
+                st.dataframe(metrics_df.style.format("{:.2%}"))
+
+                # Importance plot
+                estimator.fit(X[selected_features], y)
+                if hasattr(estimator, 'coef_'):
+                    importance = pd.Series(np.abs(estimator.coef_[0]),
+                                           index=selected_features).sort_values(ascending=False)
+
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    importance.plot(kind='barh', ax=ax)
+                    ax.set_title("Feature Importance (Absolute Coefficients)")
+                    st.pyplot(fig)
+
+            else:  # Random Forest importance (faster fallback)
+                from sklearn.ensemble import RandomForestClassifier
+                rf = RandomForestClassifier(n_estimators=100, random_state=42)
+                rf.fit(X, y)
+                importance = pd.Series(rf.feature_importances_, index=X.columns).sort_values(ascending=False)
+                selected_features = importance.head(max_features).index.tolist()
+
+                save_artifact({
+                    'selected_features': selected_features,
+                    'selection_metric': "random_forest_importance",
+                    'importance_values': importance[selected_features].values.tolist()
+                }, "5_best_subset_features.pkl")
+
+                st.success(f"Top {len(selected_features)} features selected via Random Forest:")
+                st.write(selected_features)
 
                 fig, ax = plt.subplots(figsize=(10, 6))
-                importance.plot(kind='barh', ax=ax)
-                ax.set_title("Feature Importance (Absolute Coefficients)")
+                importance[selected_features].plot(kind='barh', ax=ax)
+                ax.set_title("Feature Importance (Random Forest)")
                 st.pyplot(fig)
 
-    # Existing correlation visualization
-    st.subheader("Feature Correlation Visualization")
-    top_n = st.slider("Number of top features to show", 5, 20, 10)
-    top_features = corr_with_target.index[1:top_n + 1]  # Exclude Status
+    # Correlation bar chart
+    st.subheader("Top Feature Correlations")
+    top_visual = st.slider("Number of top correlated features to visualize", 5, min(30, len(corr_with_target)-1), 10)
+    top_features = corr_with_target.index[1:top_visual + 1]  # Exclude 'Status'
 
     fig, ax = plt.subplots(figsize=(10, 6))
-    sns.barplot(x=corr_with_target.values[1:top_n + 1], y=top_features, ax=ax)
-    ax.set_title(f"Top {top_n} Features Correlated with Loan Default")
+    sns.barplot(x=corr_with_target[top_features], y=top_features, ax=ax)
+    ax.set_title(f"Top {top_visual} Features Correlated with Loan Default")
     st.pyplot(fig)
+
 
 
 def Model_Selection_And_Training_page():

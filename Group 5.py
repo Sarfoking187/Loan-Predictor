@@ -40,20 +40,25 @@ def load_artifact(filename):
 
 
 # DATA LOADING AND PREPROCESSING
-@st.cache_data  # Streamlit cache decorator for performance optimization
+@st.cache_data
 def load_data():
-    """Loads and caches raw loan data with initial cleaning:
-        - Drops irrelevant columns (ID, dtir1, etc.)
-        - Preserves the target variable 'Status' (1=default, 0=non-default)
-        - Saves cleaned data for reproducibility"""
-    df = pd.read_csv("Loan_Default.csv")
-    df = df.drop(columns=['ID', 'dtir1', 'submission_of_application', 'year'], errors='ignore')
-    df.to_csv(f"{DATA_DIR}/1_raw_data.csv", index=False)
-    return df
+    if 'uploaded_data' in st.session_state:
+        df = st.session_state['uploaded_data'].copy()
+        df = df.drop(columns=['ID', 'dtir1', 'submission_of_application', 'year'], errors='ignore')
+        df.to_csv(f"{DATA_DIR}/1_raw_data.csv", index=False)
+        return df
+    else:
+        st.warning("Please upload your dataset via the 'Data Import and Overview' page before preprocessing.")
+        return pd.DataFrame()  # Return empty DataFrame as a fallback
 
 
-def create_preprocessor(uploaded_file=None):
+# PREPROCESSOR CREATION
+def create_preprocessor():
     df = load_data()
+    if df.empty:
+        st.error("Data not loaded. Upload a dataset first.")
+        return None
+
     X = df.drop('Status', axis=1)
 
     # Feature type identification
@@ -95,7 +100,6 @@ def create_preprocessor(uploaded_file=None):
     processed_df.to_csv(f"{DATA_DIR}/4_processed_data.csv", index=False)
 
     return preprocessor
-
 
 
 
@@ -153,7 +157,6 @@ def Data_Import_and_Overview_page():
             # Read the uploaded file
             df = pd.read_csv(uploaded_file)
             st.session_state['uploaded_data'] = df
-            st.session_state['uploaded_file'] = uploaded_file
             st.success("File successfully uploaded!")
 
             # ========================
@@ -336,22 +339,19 @@ def Data_Preprocessing_page():
         - Shows feature engineering details"""
 
     if st.button("Run Data Preprocessing"):
-        if 'uploaded_file' not in st.session_state:
-            st.warning("Please upload data first in the 'Data Import and Overview' page.")
-            return
+        preprocessor = create_preprocessor()
+        if preprocessor:
+            processed_df = pd.read_csv(f"{DATA_DIR}/4_processed_data.csv")
 
-        preprocessor = create_preprocessor(st.session_state['uploaded_file'])
-        processed_df = pd.read_csv(f"{DATA_DIR}/4_processed_data.csv")
+            st.subheader("Processed Data Sample")
+            st.dataframe(processed_df.head())
 
-        st.subheader("Processed Data Sample")
-        st.dataframe(processed_df.head())
+            st.subheader("Preprocessing Details")
+            st.write("Numerical features:", len(preprocessor.named_transformers_['num'].get_feature_names_out()))
+            st.write("Categorical features:",
+                     len(preprocessor.named_transformers_['cat'].named_steps['onehot'].get_feature_names_out()))
 
-        st.subheader("Preprocessing Details")
-        st.write("Numerical features:", len(preprocessor.named_transformers_['num'].get_feature_names_out()))
-        st.write("Categorical features:",
-                 len(preprocessor.named_transformers_['cat'].named_steps['onehot'].get_feature_names_out()))
-
-        st.success("Preprocessing completed and saved!")
+            st.success("Preprocessing completed and saved!")
 
 
 def Feature_Selection_page():
@@ -769,4 +769,3 @@ pages = {
 
 selection = st.sidebar.selectbox("Select Page", list(pages.keys()))
 pages[selection]()
-

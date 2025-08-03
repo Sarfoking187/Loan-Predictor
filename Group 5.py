@@ -42,7 +42,6 @@ def load_artifact(filename):
 # DATA LOADING AND PREPROCESSING
 @st.cache_data
 def load_data():
-    """Loads and caches uploaded loan data for processing."""
     if 'uploaded_data' in st.session_state:
         df = st.session_state['uploaded_data'].copy()
         df = df.drop(columns=['ID', 'dtir1', 'submission_of_application', 'year'], errors='ignore')
@@ -53,7 +52,7 @@ def load_data():
         return pd.DataFrame()  # Return empty DataFrame as a fallback
 
 
-
+# PREPROCESSOR CREATION
 def create_preprocessor():
     df = load_data()
     if df.empty:
@@ -101,7 +100,6 @@ def create_preprocessor():
     processed_df.to_csv(f"{DATA_DIR}/4_processed_data.csv", index=False)
 
     return preprocessor
-
 
 
 

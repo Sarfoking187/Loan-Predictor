@@ -125,44 +125,21 @@ def Home_Page():
        Use the navigation menu on the left to explore different sections of the application.
        """)
 
-    # Members
-    st.markdown("---")
-    st.markdown("### Project Team")
-    team_members = [
-        ("Kingsley Sarfo", "22252461", "Project Coordinator, App Design",
-         "https://loan-predictor-hbbz24vwfzaue2qx4hwcat.streamlit.app"),
-        ("Francisca Manu Sarpong", "22255796", "Preprocessing,Documentation,Deployment",
-         "https://kftalde5ypwd5a3qqejuvo.streamlit.app"),
-        ("George Owell", "22256146", "Evaluation, Cross-validation",
-         "loandefaultpredictionapp-utmbic9znd7uzqqhs9zgo6.streamlit.app"),
-        ("Barima Owiredu Addo", "22254055", "Interactive Prediction UI, Testing",
-         "https://loandefaultapp-ky4yy9kmt6ehsq8jqdcgs2.streamlit.app"),
-        ("Akrobettoe Marcus", "11410687", "Feature Selection, Model Training",
-         "https://models-loan-default-prediction.streamlit.app")
-    ]
 
-    # Create table-like layout
-    col1, col2, col3, col4= st.columns([4, 1.5, 5])
+    st.markdown("""---
 
-    with col1:
-        st.markdown("*Name of Student*")
-        for name, _, _ in team_members:
-            st.markdown(name)
+    ## Team Members (Group 5)
 
-    with col2:
-        st.markdown("*Student ID*")
-        for _, student_id, _ in team_members:
-            st.markdown(student_id)
+    | Name                     | Student ID | Role                                         | Deployment link               |
+    |--------------------------|------------|----------------------------------------------|-------------------------------|
+    | Kingsley Sarfo           | 22252461   | Project Coordination, App Design & Preprocessing | https://loan-predictor-hbbz24vwfzaue2qx4hwcat.streamlit.app |                           |
+    | Francisca Manu Sarpong   | 22255796   | Documentation & Deployment                  | https://kftalde5ypwd5a3qqejuvo.streamlit.app |               
+    | George Owell             | 22256146   | Model Evaluation & Cross-validation         | loandefaultpredictionapp-utmbic9znd7uzqqhs9zgo6.streamlit.app |
+    | Barima Owiredu Addo      | 22254055   | UI & Prediction Testing                     | https://loandefaultapp-ky4yy9kmt6ehsq8jqdcgs2.streamlit.app/                     |
+    | Akrobettoe Marcus        | 11410687   | Feature Selection & Model Training          | https://models-loan-default-prediction.streamlit.app/ |
 
-    with col3:
-        st.markdown("*Role in Project*")
-        for _, _, role in team_members:
-            st.markdown(role)
-
-    with col4:
-        st.markdown("*Deployment Link*")
-        for _, _, Deployment in team_members:
-            st.markdown(Deployment)
+    ---
+    """)
 
 
 
@@ -193,7 +170,7 @@ def Data_Import_and_Overview_page():
             st.subheader("1. Summary Statistics")
 
             # Basic stats
-            col1, col2, col3, col4 = st.columns(3)
+            col1, col2, col3 = st.columns(3)
             with col1:
                 st.metric("Total Records", df.shape[0])
             with col2:

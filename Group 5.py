@@ -373,7 +373,7 @@ def Data_Preprocessing_page():
 
 
 def Feature_Selection_page():
-    """Optimized feature selection with caching, pre-filtering, and faster execution."""
+    """Optimized feature selection with pre-filtering and faster methods."""
 
     st.title("3. Feature Selection")
 
@@ -385,88 +385,182 @@ def Feature_Selection_page():
         st.warning("Please complete preprocessing first.")
         return
 
-    # Compute correlations
-    st.subheader("Correlation Analysis")
+    # =============================================
+    # 1. PRE-FILTERING SECTION (NEW)
+    # =============================================
+    st.subheader("Stage 1: Initial Feature Filtering")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        prefilter_method = st.radio(
+            "Pre-filtering method",
+            ["Correlation Threshold",
+             "Mutual Information",
+             "None (use all features)"],
+            help="Reduce feature space first for faster processing"
+        )
+
+    with col2:
+        if prefilter_method != "None (use all features)":
+            threshold = st.slider(
+                "Keep top % of features",
+                10, 100, 30,
+                help="Higher values keep more features but slow down selection"
+            )
+
+    # Apply pre-filtering if selected
+    if prefilter_method == "Correlation Threshold":
+        corr_matrix = processed_df.corr()
+        corr_with_target = corr_matrix['Status'].abs().sort_values(ascending=False)
+        threshold_value = np.percentile(corr_with_target, 100 - threshold)
+        selected = corr_with_target[corr_with_target > threshold_value].index
+        X = X_full[selected.drop('Status') if 'Status' in selected else selected]
+        st.success(f"Reduced from {X_full.shape[1]} to {X.shape[1]} features based on correlation")
+
+    elif prefilter_method == "Mutual Information":
+        from sklearn.feature_selection import SelectPercentile, mutual_info_classif
+        selector = SelectPercentile(mutual_info_classif, percentile=threshold)
+        selector.fit(X_full, y)
+        X = X_full.loc[:, selector.get_support()]
+        st.success(f"Reduced from {X_full.shape[1]} to {X.shape[1]} features based on mutual information")
+    else:
+        X = X_full.copy()
+        st.info("Using all features - this may be slow for large datasets")
+
+    # =============================================
+    # 2. CORRELATION ANALYSIS (EXISTING)
+    # =============================================
+    st.subheader("Feature Correlation Analysis")
     corr_matrix = processed_df.corr()
     corr_with_target = corr_matrix['Status'].sort_values(key=abs, ascending=False)
-    st.dataframe(corr_with_target.to_frame("Correlation with Target"))
 
-    # Pre-filter top correlated features to reduce computation time
-    st.subheader("Feature Filtering")
-    top_n_corr = st.slider("Select number of top features to retain (based on correlation)", 5, 50, 20)
-    top_corr_features = corr_with_target.index[1:top_n_corr + 1]  # Exclude 'Status'
-    X = X_full[top_corr_features]
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.dataframe(corr_with_target.to_frame("Correlation with Target").style.background_gradient(cmap='coolwarm'))
 
-    # Feature Selection Method
-    st.subheader("Feature Selection Method")
-    method = st.radio("Choose method", ["Sequential Feature Selection", "Random Forest Importance"])
+    with col2:
+        top_visual = st.selectbox("Top features to plot", [5, 10, 15, 20], index=1)
 
-    max_features = st.slider("Maximum features to select", 1, min(15, len(X.columns)), 5)
-    scoring_metric = st.selectbox("Scoring metric", ['accuracy', 'precision', 'recall', 'f1'])
+    # Plot top correlations
+    top_features = corr_with_target.index[1:top_visual + 1]  # Exclude 'Status'
+    fig, ax = plt.subplots(figsize=(10, 5))
+    sns.barplot(x=corr_with_target[top_features], y=top_features, ax=ax)
+    ax.set_title(f"Top {top_visual} Correlated Features")
+    st.pyplot(fig)
 
-    # ✅ Fixed caching function with _estimator
-    @st.cache_resource
-    def run_sequential_selection(X, y, _estimator, max_features, scoring_metric):
-        from sklearn.feature_selection import SequentialFeatureSelector
-        sfs = SequentialFeatureSelector(
-            _estimator,
-            n_features_to_select=max_features,
-            direction='forward',
-            scoring=scoring_metric,
-            cv=5
-        )
-        sfs.fit(X, y)
-        return sfs
+    # =============================================
+    # 3. FEATURE SELECTION (OPTIMIZED)
+    # =============================================
+    st.subheader("Stage 2: Feature Selection")
 
-    if st.button("Run Feature Selection"):
-        with st.spinner("Running feature selection... please wait..."):
+    method = st.radio(
+        "Selection algorithm",
+        ["Sequential Forward Selection (Recommended)",
+         "Random Forest Importance (Fastest)",
+         "L1 Regularization (LASSO)"],
+        index=0
+    )
 
-            if method == "Sequential Feature Selection":
+    max_features = st.slider(
+        "Maximum features to select",
+        1, min(15, X.shape[1]), 5,
+        help="Fewer features train faster but may reduce accuracy"
+    )
+
+    scoring_metric = st.selectbox(
+        "Optimization metric",
+        ['accuracy', 'precision', 'recall', 'f1', 'roc_auc'],
+        index=4,
+        help="Choose metric most important for your business case"
+    )
+
+    if st.button("Run Feature Selection", help="May take several minutes for large feature sets"):
+        with st.spinner(f"Running {method}... Please wait..."):
+
+            if "Sequential Forward" in method:
+                from sklearn.feature_selection import SequentialFeatureSelector
                 from sklearn.linear_model import LogisticRegression
-                estimator = LogisticRegression(solver='liblinear', max_iter=500, random_state=42)
 
-                # ✅ No change in call — only definition is fixed
-                sfs = run_sequential_selection(X, y, estimator, max_features, scoring_metric)
+                # Use faster solver and fewer iterations for feature selection
+                estimator = LogisticRegression(
+                    solver='liblinear',
+                    max_iter=500,
+                    random_state=42,
+                    n_jobs=-1  # Use all CPU cores
+                )
+
+                sfs = SequentialFeatureSelector(
+                    estimator,
+                    n_features_to_select=max_features,
+                    direction='forward',
+                    scoring=scoring_metric,
+                    cv=5,
+                    n_jobs=-1  # Parallel processing
+                )
+
+                sfs.fit(X, y)
                 selected_features = X.columns[sfs.get_support()].tolist()
 
+                # Save results
                 save_artifact({
                     'selected_features': selected_features,
                     'selection_metric': scoring_metric,
+                    'method': 'SequentialForward',
                     'support_mask': sfs.get_support()
                 }, "5_best_subset_features.pkl")
 
-                st.success(f"Selected {len(selected_features)} features via SFS:")
+                # Show results
+                st.success(f"Selected {len(selected_features)} features:")
                 st.write(selected_features)
 
-                # Cross-validation performance
+                # Performance evaluation
                 from sklearn.model_selection import cross_validate
-                cv_results = cross_validate(estimator, X[selected_features], y, cv=5,
-                                            scoring=['accuracy', 'precision', 'recall', 'f1'])
+                cv_results = cross_validate(
+                    estimator,
+                    X[selected_features],
+                    y,
+                    cv=5,
+                    scoring=['accuracy', 'precision', 'recall', 'f1', 'roc_auc']
+                )
 
                 metrics_df = pd.DataFrame({
-                    'Mean': [cv_results[f'test_{m}'].mean() for m in ['accuracy', 'precision', 'recall', 'f1']],
-                    'Std': [cv_results[f'test_{m}'].std() for m in ['accuracy', 'precision', 'recall', 'f1']]
-                }, index=['Accuracy', 'Precision', 'Recall', 'F1 Score'])
+                    'Mean': [cv_results[f'test_{m}'].mean() for m in
+                             ['accuracy', 'precision', 'recall', 'f1', 'roc_auc']],
+                    'Std': [cv_results[f'test_{m}'].std() for m in
+                            ['accuracy', 'precision', 'recall', 'f1', 'roc_auc']]
+                }, index=['Accuracy', 'Precision', 'Recall', 'F1 Score', 'ROC AUC'])
 
-                st.subheader("Model Performance with Selected Features")
+                st.subheader("Cross-Validation Performance")
                 st.dataframe(metrics_df.style.format("{:.2%}"))
 
-                # Importance plot
+                # Feature importance plot
                 estimator.fit(X[selected_features], y)
                 if hasattr(estimator, 'coef_'):
-                    importance = pd.Series(np.abs(estimator.coef_[0]),
-                                           index=selected_features).sort_values(ascending=False)
+                    importance = pd.Series(
+                        np.abs(estimator.coef_[0]),
+                        index=selected_features
+                    ).sort_values(ascending=False)
 
-                    fig, ax = plt.subplots(figsize=(10, 6))
+                    fig, ax = plt.subplots(figsize=(10, 5))
                     importance.plot(kind='barh', ax=ax)
                     ax.set_title("Feature Importance (Absolute Coefficients)")
                     st.pyplot(fig)
 
-            else:  # Random Forest importance (faster fallback)
+            elif "Random Forest" in method:
                 from sklearn.ensemble import RandomForestClassifier
-                rf = RandomForestClassifier(n_estimators=100, random_state=42)
+
+                rf = RandomForestClassifier(
+                    n_estimators=100,
+                    random_state=42,
+                    n_jobs=-1
+                )
                 rf.fit(X, y)
-                importance = pd.Series(rf.feature_importances_, index=X.columns).sort_values(ascending=False)
+
+                importance = pd.Series(
+                    rf.feature_importances_,
+                    index=X.columns
+                ).sort_values(ascending=False)
+
                 selected_features = importance.head(max_features).index.tolist()
 
                 save_artifact({
@@ -475,23 +569,82 @@ def Feature_Selection_page():
                     'importance_values': importance[selected_features].values.tolist()
                 }, "5_best_subset_features.pkl")
 
-                st.success(f"Top {len(selected_features)} features selected via Random Forest:")
+                st.success(f"Top {len(selected_features)} features:")
                 st.write(selected_features)
 
-                fig, ax = plt.subplots(figsize=(10, 6))
+                fig, ax = plt.subplots(figsize=(10, 5))
                 importance[selected_features].plot(kind='barh', ax=ax)
                 ax.set_title("Feature Importance (Random Forest)")
                 st.pyplot(fig)
 
-    # Correlation bar chart
-    st.subheader("Top Feature Correlations")
-    top_visual = st.slider("Number of top correlated features to visualize", 5, min(30, len(corr_with_target)-1), 10)
-    top_features = corr_with_target.index[1:top_visual + 1]  # Exclude 'Status'
+            else:  # L1 Regularization
+                from sklearn.linear_model import LogisticRegressionCV
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.barplot(x=corr_with_target[top_features], y=top_features, ax=ax)
-    ax.set_title(f"Top {top_visual} Features Correlated with Loan Default")
-    st.pyplot(fig)
+                lasso = LogisticRegressionCV(
+                    penalty='l1',
+                    solver='liblinear',
+                    cv=5,
+                    scoring=scoring_metric,
+                    random_state=42,
+                    max_iter=1000
+                )
+                lasso.fit(X, y)
+
+                selected_features = X.columns[lasso.coef_[0] != 0].tolist()
+
+                # If too many features selected, take top by coefficient magnitude
+                if len(selected_features) > max_features:
+                    importance = pd.Series(
+                        np.abs(lasso.coef_[0]),
+                        index=X.columns
+                    ).sort_values(ascending=False)
+                    selected_features = importance.head(max_features).index.tolist()
+
+                save_artifact({
+                    'selected_features': selected_features,
+                    'selection_metric': scoring_metric,
+                    'method': 'L1_Regularization',
+                    'coefficients': lasso.coef_[0][lasso.coef_[0] != 0].tolist()
+                }, "5_best_subset_features.pkl")
+
+                st.success(f"Selected {len(selected_features)} features via L1:")
+                st.write(selected_features)
+
+                # Show coefficients
+                coef_df = pd.DataFrame({
+                    'Feature': selected_features,
+                    'Coefficient': lasso.coef_[0][lasso.coef_[0] != 0]
+                }).sort_values('Coefficient', key=abs, ascending=False)
+
+                st.dataframe(coef_df.style.bar(
+                    subset=['Coefficient'],
+                    align='mid',
+                    color=['#d65f5f', '#5fba7d']
+                ))
+
+    # =============================================
+    # 4. FEATURE ANALYSIS (EXISTING)
+    # =============================================
+    st.subheader("Feature Analysis")
+
+    try:
+        feature_results = load_artifact("5_best_subset_features.pkl")
+        selected_features = feature_results['selected_features']
+
+        st.write("**Currently selected features:**")
+        st.write(selected_features)
+
+        if 'importance_values' in feature_results:
+            fig, ax = plt.subplots(figsize=(10, 5))
+            pd.Series(
+                feature_results['importance_values'],
+                index=selected_features
+            ).sort_values().plot(kind='barh', ax=ax)
+            ax.set_title("Feature Importance")
+            st.pyplot(fig)
+
+    except:
+        st.warning("No feature selection results found. Run selection first.")
 
 
 

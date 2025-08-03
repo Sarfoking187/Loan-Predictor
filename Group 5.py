@@ -59,37 +59,51 @@ def create_preprocessor():
         st.error("Data not loaded. Upload a dataset first.")
         return None
 
+    if 'Status' not in df.columns:
+        st.error("'Status' column is missing. Cannot proceed.")
+        return None
+
     X = df.drop('Status', axis=1)
 
     # Feature type identification
     numerical_cols = X.select_dtypes(include=['int64', 'float64']).columns.tolist()
     categorical_cols = X.select_dtypes(include=['object']).columns.tolist()
 
-    # Save feature types for reference
     save_artifact({'numerical': numerical_cols, 'categorical': categorical_cols},
                   "2_column_types.pkl")
 
-    # Numerical pipeline
     numerical_transformer = Pipeline(steps=[
-        ('imputer', SimpleImputer(strategy='median')),  # Robust to outliers
-        ('scaler', StandardScaler())])  # Helps models like SVM and neural networks
+        ('imputer', SimpleImputer(strategy='median')),
+        ('scaler', StandardScaler())])
 
-    # Categorical pipeline
     categorical_transformer = Pipeline(steps=[
-        ('imputer', SimpleImputer(strategy='most_frequent')),  # Preserves mode
-        ('onehot', OneHotEncoder(handle_unknown='ignore'))])  # Handles new categories
+        ('imputer', SimpleImputer(strategy='most_frequent')),
+        ('onehot', OneHotEncoder(handle_unknown='ignore'))])
 
-    # Combined preprocessing
     preprocessor = ColumnTransformer(
         transformers=[
             ('num', numerical_transformer, numerical_cols),
             ('cat', categorical_transformer, categorical_cols)])
 
-    # # Fit and save the preprocessor
-    preprocessor.fit(X)
+    # Try to fit the preprocessor
+    try:
+        # DEBUG: log rows with any infinite or NaN
+        if not np.all(np.isfinite(X.select_dtypes(include=[np.number]))):
+            st.warning("⚠️ Found non-finite (NaN or Inf) values in numerical features.")
+            st.dataframe(X[~np.isfinite(X.select_dtypes(include=[np.number])).any(axis=1)])
+
+        preprocessor.fit(X)
+    except ValueError as ve:
+        st.error(f"ValueError during preprocessor fitting: {ve}")
+        st.dataframe(X.head())  # Show top of data to help with debugging
+        return None
+    except Exception as e:
+        st.error(f"Unexpected error during preprocessing: {e}")
+        return None
+
     save_artifact(preprocessor, "3_preprocessor.pkl")
 
-    # Transform and save processed data
+    # Transform and save
     X_processed = preprocessor.transform(X)
     num_features = preprocessor.named_transformers_['num'].get_feature_names_out()
     cat_features = preprocessor.named_transformers_['cat'].named_steps['onehot'].get_feature_names_out()
@@ -101,6 +115,10 @@ def create_preprocessor():
 
     return preprocessor
 
+    # Check for all-NaN columns
+    null_cols = X.columns[X.isnull().all()].tolist()
+    if null_cols:
+        st.warning(f"The following columns are entirely missing and will break the pipeline: {null_cols}")
 
 
 # STREAMLIT PAGE FUNCTIONS

@@ -130,13 +130,13 @@ def Home_Page():
 
     ## Team Members (Group 5)
 
-    | Name                     | Student ID | Role                                         | Deployment link               |
-    |--------------------------|------------|----------------------------------------------|-------------------------------|
-    | Kingsley Sarfo           | 22252461   | Project Coordination, App Design & Preprocessing | https://loan-predictor-hbbz24vwfzaue2qx4hwcat.streamlit.app |                           
-    | Francisca Manu Sarpong   | 22255796   | Documentation & Deployment                  | https://kftalde5ypwd5a3qqejuvo.streamlit.app |               
-    | George Owell             | 22256146   | Model Evaluation & Cross-validation         | loandefaultpredictionapp-utmbic9znd7uzqqhs9zgo6.streamlit.app |
-    | Barima Owiredu Addo      | 22254055   | UI & Prediction Testing                     | https://loandefaultapp-ky4yy9kmt6ehsq8jqdcgs2.streamlit.app/  |
-    | Akrobettoe Marcus        | 11410687   | Feature Selection & Model Training          | https://models-loan-default-prediction.streamlit.app/ |
+    | Name                     | Student ID | Role                                             | Deployment link                                              |
+    |--------------------------|------------|--------------------------------------------------|--------------------------------------------------------------|
+    | Kingsley Sarfo           | 22252461   | Project Coordination, App Design & Preprocessing | https://loan-predictor-hbbz24vwfzaue2qx4hwcat.streamlit.app  |                           
+    | Francisca Manu Sarpong   | 22255796   | Documentation & Deployment                       | https://kftalde5ypwd5a3qqejuvo.streamlit.app |               
+    | George Owell             | 22256146   | Model Evaluation & Cross-validation              | loandefaultpredictionapp-utmbic9znd7uzqqhs9zgo6.streamlit.app|
+    | Barima Owiredu Addo      | 22254055   | UI & Prediction Testing                          | https://loandefaultapp-ky4yy9kmt6ehsq8jqdcgs2.streamlit.app/ |
+    | Akrobettoe Marcus        | 11410687   | Feature Selection & Model Training               | https://models-loan-default-prediction.streamlit.app/        |
 
     ---
     """)

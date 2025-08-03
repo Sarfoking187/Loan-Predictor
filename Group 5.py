@@ -130,13 +130,13 @@ def Home_Page():
 
     ## Team Members (Group 5)
 
-    | Name                     | Student ID | Role                                             | Deployment link                                              |
-    |--------------------------|------------|--------------------------------------------------|--------------------------------------------------------------|
-    | Kingsley Sarfo           | 22252461   | Project Coordination, App Design & Preprocessing | https://loan-predictor-hbbz24vwfzaue2qx4hwcat.streamlit.app  |                           
-    | Francisca Manu Sarpong   | 22255796   | Documentation & Deployment                       | https://kftalde5ypwd5a3qqejuvo.streamlit.app                 |               
-    | George Owell             | 22256146   | Model Evaluation & Cross-validation              | loandefaultpredictionapp-utmbic9znd7uzqqhs9zgo6.streamlit.app|
-    | Barima Owiredu Addo      | 22254055   | UI & Prediction Testing                          | https://loandefaultapp-ky4yy9kmt6ehsq8jqdcgs2.streamlit.app/ |                    
-    | Akrobettoe Marcus        | 11410687   | Feature Selection & Model Training               | https://models-loan-default-prediction.streamlit.app/        |
+    | Name                     | Student ID | Role                                         | Deployment link               |
+    |--------------------------|------------|----------------------------------------------|-------------------------------|
+    | Kingsley Sarfo           | 22252461   | Project Coordination, App Design & Preprocessing | https://loan-predictor-hbbz24vwfzaue2qx4hwcat.streamlit.app |                           |
+    | Francisca Manu Sarpong   | 22255796   | Documentation & Deployment                  | https://kftalde5ypwd5a3qqejuvo.streamlit.app |               
+    | George Owell             | 22256146   | Model Evaluation & Cross-validation         |                                |
+    | Barima Owiredu Addo      | 22254055   | UI & Prediction Testing                     |                       |
+    | Akrobettoe Marcus        | 11410687   | Feature Selection & Model Training          | https://models-loan-default-prediction.streamlit.app/ |
 
     ---
     """)
@@ -180,13 +180,13 @@ def Data_Import_and_Overview_page():
                     st.metric("Default Rate", f"{df['Status'].mean():.2%}")
 
             # Numerical features summary
-            st.markdown("**Numerical Features Summary**")
+            st.markdown("*Numerical Features Summary*")
             st.dataframe(df.describe().T.style.format("{:.2f}"))
 
             # Categorical features summary
             cat_cols = df.select_dtypes(include=['object']).columns
             if len(cat_cols) > 0:
-                st.markdown("**Categorical Features Summary**")
+                st.markdown("*Categorical Features Summary*")
                 cat_summary = pd.DataFrame({
                     'Unique Values': df[cat_cols].nunique(),
                     'Most Common': df[cat_cols].mode().iloc[0],
@@ -195,7 +195,7 @@ def Data_Import_and_Overview_page():
                 st.dataframe(cat_summary)
 
             # Missing values analysis
-            st.markdown("**Missing Values Analysis**")
+            st.markdown("*Missing Values Analysis*")
             missing = df.isnull().sum().to_frame('Missing Values')
             missing['Percentage'] = (missing['Missing Values'] / len(df)) * 100
             st.dataframe(missing.style.format({'Percentage': '{:.2f}%'}))
@@ -207,7 +207,7 @@ def Data_Import_and_Overview_page():
 
             # Target distribution (if exists)
             if 'Status' in df.columns:
-                st.markdown("**Target Variable Distribution**")
+                st.markdown("*Target Variable Distribution*")
                 fig, ax = plt.subplots(1, 2, figsize=(12, 5))
 
                 # Countplot
@@ -222,7 +222,7 @@ def Data_Import_and_Overview_page():
             # Numerical distributions
             num_cols = df.select_dtypes(include=['int64', 'float64']).columns
             if len(num_cols) > 0:
-                st.markdown("**Numerical Features Distribution**")
+                st.markdown("*Numerical Features Distribution*")
                 selected_num = st.multiselect("Select numerical features to visualize",
                                               num_cols, default=num_cols[3:])
 
@@ -244,7 +244,7 @@ def Data_Import_and_Overview_page():
 
                     # Scatterplots for key financial relationships
                     if len(selected_num) >= 2:
-                        st.markdown("**Key Financial Relationships**")
+                        st.markdown("*Key Financial Relationships*")
 
                         # Create more relevant comparisons for loan analysis
                         fig, ax = plt.subplots(1, 2, figsize=(14, 6))
@@ -294,7 +294,7 @@ def Data_Import_and_Overview_page():
 
             # Correlation matrix
             if len(num_cols) > 1:
-                st.markdown("**Correlation Matrix**")
+                st.markdown("*Correlation Matrix*")
                 corr_matrix = df[num_cols].corr()
 
                 fig, ax = plt.subplots(figsize=(10, 8))
@@ -304,13 +304,13 @@ def Data_Import_and_Overview_page():
                 st.pyplot(fig)
 
                 # Top correlations
-                st.markdown("**Top Feature Correlations**")
+                st.markdown("*Top Feature Correlations*")
                 corr_pairs = corr_matrix.unstack().sort_values(key=abs, ascending=False)
                 st.dataframe(corr_pairs[corr_pairs != 1].head(10).to_frame('Correlation'))
 
             # Categorical visualizations
             if len(cat_cols) > 0:
-                st.markdown("**Categorical Features Analysis**")
+                st.markdown("*Categorical Features Analysis*")
                 selected_cat = st.selectbox("Select categorical feature", cat_cols)
 
                 fig, ax = plt.subplots(1, 2, figsize=(12, 5))
@@ -659,7 +659,7 @@ def Interactive_Prediction_page():
             if probability[1] > HIGH_RISK_THRESHOLD:
                 st.error(f"🚨 HIGH RISK (Default Probability: {probability[1]:.2%})")
             elif probability[1] > MEDIUM_RISK_THRESHOLD:
-                st.warning(f"⚠️ MEDIUM RISK (Default Probability: {probability[1]:.2%})")
+                st.warning(f"⚠ MEDIUM RISK (Default Probability: {probability[1]:.2%})")
             else:
                 st.success(f"✅ LOW RISK (Default Probability: {probability[0]:.2%})")
 
@@ -679,9 +679,9 @@ def Interactive_Prediction_page():
             debt_to_income = input_data['loan_amount'] / max(1, input_data['income'])
             collateral_ratio = input_data['property_value'] / max(1, input_data['loan_amount'])
 
-            st.write(f"**Debt-to-Income Ratio:** {debt_to_income:.1f}x")
-            st.write(f"**Collateral Coverage:** {collateral_ratio:.1%}")
-            st.write(f"**Credit Score:** {input_data['Credit_Score']} (FICO range: 300-850)")
+            st.write(f"*Debt-to-Income Ratio:* {debt_to_income:.1f}x")
+            st.write(f"*Collateral Coverage:* {collateral_ratio:.1%}")
+            st.write(f"*Credit Score:* {input_data['Credit_Score']} (FICO range: 300-850)")
 
             # Risk indicators
             risk_flags = []
@@ -704,8 +704,8 @@ def Interactive_Prediction_page():
                 # ======================================
                 # Model Diagnostics Section
                 # ======================================
-                #with st.expander("ℹ️ Model Diagnostics"):
-                #st.write("**If predictions seem incorrect:**")
+                #with st.expander("ℹ Model Diagnostics"):
+                #st.write("*If predictions seem incorrect:*")
                 #st.write("- The model may be under-trained")
                 #st.write("- Training data may lack high-risk examples")
                 #st.write("- Important risk features may be missing")

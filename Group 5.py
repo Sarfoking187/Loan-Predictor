@@ -40,29 +40,26 @@ def load_artifact(filename):
 
 
 # DATA LOADING AND PREPROCESSING
-@st.cache_data  # Streamlit cache decorator for performance optimization
+@st.cache_data
 def load_data():
-    """Loads and caches raw loan data with initial cleaning:
-        - Drops irrelevant columns (ID, dtir1, etc.)
-        - Preserves the target variable 'Status' (1=default, 0=non-default)
-        - Saves cleaned data for reproducibility"""
-    df = pd.read_csv("Loan_Default.csv")
-    df = df.drop(columns=['ID', 'dtir1', 'submission_of_application', 'year'], errors='ignore')
-    df.to_csv(f"{DATA_DIR}/1_raw_data.csv", index=False)
-    return df
+    """Loads and caches uploaded loan data for processing."""
+    if 'uploaded_data' in st.session_state:
+        df = st.session_state['uploaded_data'].copy()
+        df = df.drop(columns=['ID', 'dtir1', 'submission_of_application', 'year'], errors='ignore')
+        df.to_csv(f"{DATA_DIR}/1_raw_data.csv", index=False)
+        return df
+    else:
+        st.warning("Please upload your dataset via the 'Data Import and Overview' page before preprocessing.")
+        return pd.DataFrame()  # Return empty DataFrame as a fallback
+
 
 
 def create_preprocessor():
-    """Creates a comprehensive preprocessing pipeline that:
-    1. Separates numerical and categorical features
-    2. For numerical features:
-       - Imputes missing values with median (robust to outliers)
-       - Standardizes features (mean=0, std=1) for model convergence
-    3. For categorical features:
-       - Imputes missing values with most frequent category
-       - One-hot encodes for model compatibility
-    4. Uses ColumnTransformer for parallel processing of different feature types"""
     df = load_data()
+    if df.empty:
+        st.error("Data not loaded. Upload a dataset first.")
+        return None
+
     X = df.drop('Status', axis=1)
 
     # Feature type identification
@@ -345,17 +342,18 @@ def Data_Preprocessing_page():
 
     if st.button("Run Data Preprocessing"):
         preprocessor = create_preprocessor()
-        processed_df = pd.read_csv(f"{DATA_DIR}/4_processed_data.csv")
+        if preprocessor:
+            processed_df = pd.read_csv(f"{DATA_DIR}/4_processed_data.csv")
 
-        st.subheader("Processed Data Sample")
-        st.dataframe(processed_df.head())
+            st.subheader("Processed Data Sample")
+            st.dataframe(processed_df.head())
 
-        st.subheader("Preprocessing Details")
-        st.write("Numerical features:", len(preprocessor.named_transformers_['num'].get_feature_names_out()))
-        st.write("Categorical features:",
-                 len(preprocessor.named_transformers_['cat'].named_steps['onehot'].get_feature_names_out()))
+            st.subheader("Preprocessing Details")
+            st.write("Numerical features:", len(preprocessor.named_transformers_['num'].get_feature_names_out()))
+            st.write("Categorical features:",
+                     len(preprocessor.named_transformers_['cat'].named_steps['onehot'].get_feature_names_out()))
 
-        st.success("Preprocessing completed and saved!")
+            st.success("Preprocessing completed and saved!")
 
 
 def Feature_Selection_page():

@@ -113,7 +113,7 @@ streamlit run app.py
     └── Preprocessed data, model artifacts, and evaluation results
 
 📄 app.py
-📄 Loan_Default.csv (https://www.kaggle.com/datasets/yasserh/loan-default-dataset))
+📄 Loan_Default.csv
 📄 requirements.txt
 📄 README.md
 ```
@@ -150,6 +150,7 @@ MIT License. Feel free to use and modify with attribution.
 ## Contact
 
 For inquiries or suggestions, please contact any member of **Group 5**.
+
 
 
 

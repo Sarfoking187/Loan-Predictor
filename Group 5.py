@@ -142,7 +142,7 @@ def Home_Page():
     ]
 
     # Create table-like layout
-    col1, col2, col3, col4 = st.columns([4, 1.5, 5])
+    col1, col2, col3, col4 = st.columns([4, 1.5, 5, 4])
 
     with col1:
         st.markdown("*Name of Student*")
@@ -796,3 +796,4 @@ pages = {
 
 selection = st.sidebar.selectbox("Select Page", list(pages.keys()))
 pages[selection]()
+

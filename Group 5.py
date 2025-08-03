@@ -2,16 +2,17 @@
 import streamlit as st  # Web application framework
 import pandas as pd  # Data manipulation
 import numpy as np  # Numerical operations
-import matplotlib.pyplot as plt  # Visualization
+from matplotlib import pyplot as plt  # Visualization
 import seaborn as sns  # Enhanced visualization
 import pickle  # Object serialization
 import os  # File system operations
+from PIL import Image  # Image support (for adding logos or visuals)
 
 # Scikit-learn components for machine learning
 from sklearn.ensemble import RandomForestClassifier  # ML algorithm
 from sklearn.model_selection import cross_val_score  # Cross-Validation
 from sklearn.metrics import (accuracy_score, precision_score,  # Evaluation metrics
-                             recall_score, f1_score,
+                              recall_score, f1_score,
                              confusion_matrix, classification_report)
 from sklearn.preprocessing import StandardScaler, OneHotEncoder  # Feature engineering
 from sklearn.impute import SimpleImputer  # Missing value handling
@@ -105,16 +106,42 @@ def create_preprocessor():
     return preprocessor
 
 
+
+
 # STREAMLIT PAGE FUNCTIONS
 def Home_Page():
-    st.title("Loan Default Prediction System")
-    st.write("""
-    Welcome to the Loan Default Prediction System. This application helps financial institutions 
-    assess the risk of loan default using machine learning.
 
-    Use the navigation menu on the left to explore different sections of the application.
+    #LOGO
+    logo = Image.open("LDP.jpg")
+    st.image(logo, caption="", width=300)
+
+    #FUNCTIONS
+    st.title("Loan Default Prediction System")
+
+    st.write("""
+       Welcome to the Loan Default Prediction System. This application helps financial institutions 
+       assess the risk of loan default using machine learning.
+
+       Use the navigation menu on the left to explore different sections of the application.
+       """)
+
+
+    st.markdown("""---
+
+    ## Team Members (Group 5)
+
+    | Name                     | Student ID | Role                                             | Deployment link                                              |
+    |--------------------------|------------|--------------------------------------------------|--------------------------------------------------------------|
+    | Kingsley Sarfo           | 22252461   | Project Coordination, App Design & Preprocessing | https://loan-predictor-hbbz24vwfzaue2qx4hwcat.streamlit.app  |                           
+    | Francisca Manu Sarpong   | 22255796   | Documentation & Deployment                       | https://kftalde5ypwd5a3qqejuvo.streamlit.app                 |               
+    | George Owell             | 22256146   | Model Evaluation & Cross-validation              | loandefaultpredictionapp-utmbic9znd7uzqqhs9zgo6.streamlit.app|
+    | Barima Owiredu Addo      | 22254055   | UI & Prediction Testing                          | https://loandefaultapp-ky4yy9kmt6ehsq8jqdcgs2.streamlit.app/ |                    
+    | Akrobettoe Marcus        | 11410687   | Feature Selection & Model Training               | https://models-loan-default-prediction.streamlit.app/        |
+
+    ---
     """)
-    st.image("LDP.jpg", use_container_width=True)
+
+
 
 
 def Data_Import_and_Overview_page():
@@ -200,15 +227,19 @@ def Data_Import_and_Overview_page():
                                               num_cols, default=num_cols[3:])
 
                 if selected_num:
-                    fig, ax = plt.subplots(len(selected_num), 2, figsize=(12, 4 * len(selected_num)))
+                    fig, ax = plt.subplots(len(selected_num), 2, figsize=(14, 5 * len(selected_num)))
                     for i, col in enumerate(selected_num):
                         # Histogram
                         sns.histplot(df[col], kde=True, ax=ax[i, 0])
                         ax[i, 0].set_title(f'{col} Distribution')
+                        ax[i, 0].tick_params(axis='x', rotation=45)
 
                         # Boxplot
                         sns.boxplot(x=df[col], ax=ax[i, 1])
-                        ax[i, 1].set_title(f'{col} Spread')
+                        ax[i, 1].set_title(f'{col} Boxplot')
+                        ax[i, 1].tick_params(axis='x', rotation=45)
+
+                    plt.tight_layout()
                     st.pyplot(fig)
 
                     # Scatterplots for key financial relationships
@@ -709,6 +740,7 @@ def Results_Interpretation_And_Conclusion_page():
 
     ## Business Implications
 
+
     - The model can help reduce financial losses by identifying high-risk applicants
     - Can be used to adjust interest rates based on risk levels
     - Helps standardize the loan approval process
@@ -725,21 +757,6 @@ def Results_Interpretation_And_Conclusion_page():
     - Incorporate more features (economic indicators, employment history)
     - Develop a risk scoring system based on model probabilities
     """)
-
-    st.markdown("""---
-
-## Team Members (Group 5)
-
-| Name                     | Student ID | Role                                         | Deployment link               |
-|--------------------------|------------|----------------------------------------------|-------------------------------|
-| Kingsley Sarfo           | 22252461   | Project Coordination, App Design & Preprocessing | https://group5-vvhhfpcyg6qkpbswhhtckw.streamlit.app/ |
-| Francisca Manu Sarpong   | 22255796   | Documentation & Deployment                  |  https://kftalde5ypwd5a3qqejuvo.streamlit.app |               
-| George Owell             | 22256146   | Model Evaluation & Cross-validation         |                                |
-| Barima Owiredu Addo      | 22254055   | UI & Prediction Testing                     |                                |
-| Akrobettoe Marcus        | 11410687   | Feature Selection & Model Training          |                                |
-
----
-""")
 
 
 # Map sidebar names to functions

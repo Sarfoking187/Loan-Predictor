@@ -5,7 +5,7 @@ Here's a professional and comprehensive `README.md` file for your Streamlit-base
 ````markdown
 # Loan Default Prediction System
 
-This is an interactive **Loan Default Prediction Web Application** built with **Streamlit**, leveraging machine learning and advanced data visualization techniques to assess the likelihood of loan default. It is designed for use by financial institutions, loan officers, and analysts to support data-driven decision-making.
+This is an interactive Loan Default Prediction Web Application built with Streamlit, leveraging machine learning and advanced data visualization techniques to assess the likelihood of loan default. It is designed for use by financial institutions, loan officers, and analysts to support data-driven decision-making.
 
 ---
 
@@ -150,5 +150,6 @@ MIT License. Feel free to use and modify with attribution.
 ## Contact
 
 For inquiries or suggestions, please contact any member of **Group 5**.
+
 
 

@@ -103,7 +103,7 @@ def create_preprocessor(uploaded_file=None):
 def Home_Page():
 
     #LOGO
-    logo = Image.open("LDP.jpeg")
+    logo = Image.open("LDP.jpg")
     st.image(logo, caption="", width=300)
 
     #FUNCTIONS
@@ -769,3 +769,4 @@ pages = {
 
 selection = st.sidebar.selectbox("Select Page", list(pages.keys()))
 pages[selection]()
+

@@ -182,7 +182,7 @@ def Home_Page():
         ---
         ###  Dataset Information:
         - Source: [Kaggle - Loan Default Dataset](https://www.kaggle.com/datasets/yasserh/loan-default-dataset)
-        - Target variable: loan_amount (indicating default)
+        - Target variable: loan_amount
         """)
 
 def Data_Import_and_Overview_page():
@@ -697,3 +697,4 @@ pages = {
 
 selection = st.sidebar.selectbox("Select Page", list(pages.keys()))
 pages[selection]()
+

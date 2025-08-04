@@ -1,155 +1,119 @@
-Here's a professional and comprehensive `README.md` file for your Streamlit-based Loan Default Prediction project:
-
----
 
 ````markdown
-# Loan Default Prediction System
+# Loan Default Prediction Web App
 
-This is an interactive Loan Default Prediction Web Application built with Streamlit, leveraging machine learning and advanced data visualization techniques to assess the likelihood of loan default. It is designed for use by financial institutions, loan officers, and analysts to support data-driven decision-making.
+This interactive web application, developed using **Python**, **Streamlit**, and **Scikit-learn**, provides a complete machine learning pipeline to predict **loan default amounts**. The app walks users through the data science workflow—from data import and preprocessing to feature selection, model training, evaluation, and real-time predictions.
+
+> Developed by **Group 5** as part of an Applied Regression and Machine Learning course.
 
 ---
 
-##  Key Features
+## App Overview
 
-### Data Upload & EDA
-- Upload your own CSV loan dataset.
-- View descriptive statistics, missing value analysis, and feature summaries.
-- Visualize:
-  - Distributions of numerical and categorical features.
-  - Target variable balance (default vs non-default).
-  - Correlation heatmaps.
-  - Interactive scatterplots (e.g., Debt-to-Income vs Credit Score).
+The project simulates a real-world use case where a data science team is tasked with building a predictive system for financial institutions. Users can:
 
-### Data Preprocessing
-- Intelligent pipeline for:
-  - Missing value imputation (median for numeric, mode for categorical).
-  - Standardization of numerical data.
-  - One-hot encoding of categorical data.
-- Saves preprocessed dataset for reuse and model training.
+- Explore loan application datasets.
+- Preprocess, clean, and encode data.
+- Select features via best subset selection.
+- Train and evaluate a Ridge Regression model.
+- Make interactive predictions using custom inputs.
 
-### Feature Selection
-- Correlation-based filtering.
-- Sequential Feature Selector using Logistic Regression.
-- Interactive evaluation using metrics like accuracy, precision, recall, and F1.
-- Feature importance bar plots.
+---
 
-### Model Training
-- Trains a **Random Forest Classifier**.
-- Hyperparameter tuning (number of trees, depth, bootstrap settings).
-- 5-fold Cross-Validation.
-- Model is saved and reused for prediction and evaluation.
+## Machine Learning Pipeline
 
-### Model Evaluation
-- Displays confusion matrix.
-- Shows precision, recall, accuracy, and F1 Score.
-- Bar plot of feature importances.
-- Saves evaluation results for auditing.
-
-### Interactive Predictions
-- Input new applicant data via form.
-- Real-time default probability predictions.
-- Risk classification:
-  - ✅ Low Risk
-  - ⚠️ Medium Risk
-  - 🚨 High Risk
-- Debt-to-income and collateral coverage ratios.
-- Risk factor detection and warning alerts.
-
-### Results Interpretation & Team Credits
-- Summary of model performance.
-- Business recommendations.
-- Limitations and future directions.
-- Group contributions and Streamlit deployment links.
+| Step | Description |
+|------|-------------|
+| **1. Data Import and Overview** | Upload and explore the dataset with visual summaries |
+| **2. Data Preprocessing** | Handle missing values, encode categoricals, scale numericals |
+| **3. Feature Selection** | Sequential Forward Selection with Ridge Regression |
+| **4. Model Training** | Ridge Regression with adjustable `alpha`, cross-validation |
+| **5. Evaluation** | RMSE, R², actual vs predicted plots, feature importance |
+| **6. Prediction** | Real-time prediction form with preprocessing pipeline |
+| **7. Conclusion** | Summary of results, limitations, and future improvements |
 
 ---
 
 ## Tech Stack
 
-| Technology     | Role                        |
-|----------------|-----------------------------|
-| Python         | Core programming language   |
-| Streamlit      | Web application framework   |
-| pandas, NumPy  | Data processing             |
-| seaborn, matplotlib | Visualizations         |
-| scikit-learn   | ML modeling and pipelines   |
-| pickle         | Saving and loading models   |
-| Git/GitHub     | Version control and hosting |
-
----
-
-##  How to Run Locally
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/your-username/loan-default-prediction-app.git
-cd loan-default-prediction-app
-````
-
-### 2. Create Virtual Environment (optional but recommended)
-
-```bash
-python -m venv venv
-source venv/bin/activate  # on Windows: venv\Scripts\activate
-```
-
-### 3. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Run the App
-
-```bash
-streamlit run app.py
-```
+- **Frontend**: [Streamlit](https://streamlit.io/)
+- **Backend / ML**: [Scikit-learn](https://scikit-learn.org/)
+- **Visualization**: Matplotlib, Seaborn
+- **Data Handling**: Pandas, NumPy
+- **Persistence**: Pickle for storing artifacts
 
 ---
 
 ## 📂 Project Structure
 
-```
-📁 saved_data/
-    └── Preprocessed data, model artifacts, and evaluation results
+```bash
+├── Loan_Default.csv              # Sample dataset (user uploaded in app)
+├── LDP.jpg                       # Logo
+├── saved_data/                   # Folder for storing intermediate artifacts
+│   ├── 1_raw_data.csv
+│   ├── 2_column_types.pkl
+│   ├── 3_preprocessor.pkl
+│   ├── 4_processed_data.csv
+│   ├── 5_best_subset_features.pkl
+│   ├── 6_cv_results.pkl
+│   ├── 7_trained_model.pkl
+│   ├── 8_predictions.csv
+├── loan_default_app.py           # Main Streamlit script
+└── README.md                     # Project documentation
+````
 
-📄 app.py
-📄 Loan_Default.csv (https://www.kaggle.com/datasets/yasserh/loan-default-dataset))
-📄 requirements.txt
-📄 README.md
-```
+---
 
+## Dataset Information
 
+* **Source**: [Kaggle - Loan Default Dataset](https://www.kaggle.com/datasets/yasserh/loan-default-dataset)
+* **Target Variable**: `loan_amount`
+* **Features**: Demographic and financial indicators
 
-## Team Members (Group 5)
+---
 
-| Name                   | Student ID | Role                                             | Deployment Link                                                          |
-| ---------------------- | ---------- | ------------------------------------------------ | -------------------------------------------------------------------------|
-| Kingsley Sarfo         | 22252461   | Project Coordination, App Design & Preprocessing | [App Link](https://group5-vvhhfpcyg6qkpbswhhtckw.streamlit.app)          |
-| Francisca Manu Sarpong | 22255796   | Documentation & Deployment                       | [App Link](https://kftalde5ypwd5a3qqejuvo.streamlit.app)                 |
-| George Owell           | 22256146   | Model Evaluation & Cross-validation              | [App Link](loandefaultpredictionapp-utmbic9znd7uzqqhs9zgo6.streamlit.app)|
-| Barima Owiredu Addo    | 22254055   | UI & Prediction Testing                          | [App Link](https://loandefaultapp-ky4yy9kmt6ehsq8jqdcgs2.streamlit.app)  |
-| Akrobettoe Marcus      | 11410687   | Feature Selection & Model Training               | [App Link](https://models-loan-default-prediction.streamlit.app/)        |  
+## Team Members
+
+| Name                   | Student ID | Role                | Deployment                                                                        |
+| ---------------------- | ---------- | ------------------- | --------------------------------------------------------------------------------- |
+| Kingsley Sarfo         | 22252461   | Project Coordinator | [App Link](https://loan-predictor-hbbz24vwfzaue2qx4hwcat.streamlit.app)           |
+| Francisca Manu Sarpong | 22255796   | Data Preprocessing  | [App Link](https://kftalde5ypwd5a3qqejuvo.streamlit.app)                          |
+| George Owell           | 22256146   | Model Evaluation    | [App Link](https://loandefaultpredictionapp-utmbic9znd7uzqqhs9zgo6.streamlit.app) |
+| Barima Owiredu Addo    | 22254055   | UI Testing          | [App Link](https://loandefaultapp-ky4yy9kmt6ehsq8jqdcgs2.streamlit.app)           |
+| Akrobettoe Marcus      | 11410687   | Feature Selection   | [App Link](https://models-loan-default-prediction.streamlit.app)                  |
+
+---
+
+## Instructions
+
+1. Run the app using `streamlit run loan_default_app.py`
+2. Use the sidebar to navigate between pages.
+3. Start from **Data Import** and proceed sequentially for best results.
+
+---
+
+## Features
+
+* End-to-end ML pipeline with persistent storage
+* Real-time prediction interface
+* Custom preprocessing with numerical/categorical handling
+* Ridge regression with feature selection and cross-validation
+* Visual analytics and correlation summaries
 
 ---
 
 ## Future Improvements
 
-* Add support for other ML models (e.g., XGBoost, Neural Networks).
-* Include additional features like employment history and credit history length.
-* Integrate a model monitoring dashboard.
-* Add support for batch predictions and PDF report generation.
+* Integrate additional predictive models (e.g., Lasso, Gradient Boosting)
+* Deploy via Docker or Streamlit Cloud for production use
+* Add automated unit tests for reproducibility
+* Incorporate fairness metrics for financial decisioning
 
 ---
 
 ## License
 
-MIT License. Feel free to use and modify with attribution.
+This project is for academic use only. Refer to your institution’s policy on academic integrity before reuse.
 
 ---
-
-## Contact
-
-For inquiries or suggestions, please contact any member of **Group 5**.
-
-
 

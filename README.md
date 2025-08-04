@@ -2,9 +2,9 @@
 ````markdown
 # Loan Default Prediction Web App
 
-This interactive web application, developed using **Python**, **Streamlit**, and **Scikit-learn**, provides a complete machine learning pipeline to predict **loan default amounts**. The app walks users through the data science workflow—from data import and preprocessing to feature selection, model training, evaluation, and real-time predictions.
+This interactive web application, developed using Python, Streamlit, and Scikit-learn, provides a complete machine learning pipeline to predict loan default amounts. The app walks users through the data science workflow—from data import and preprocessing to feature selection, model training, evaluation, and real-time predictions.
 
-> Developed by **Group 5** as part of an Applied Regression and Machine Learning course.
+> Developed by Group 5 as part of an Applied Regression and Machine Learning course.
 
 ---
 
@@ -116,4 +116,5 @@ The project simulates a real-world use case where a data science team is tasked 
 This project is for academic use only. Refer to your institution’s policy on academic integrity before reuse.
 
 ---
+
 

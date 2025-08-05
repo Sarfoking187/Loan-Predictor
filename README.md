@@ -34,8 +34,8 @@ The project simulates a real-world use case where a data science team is tasked 
 │   ├── 7_trained_model.pkl
 │   ├── 8_predictions.csv
 ├── Group 5.py # Main Streamlit script
-└── README.md                      # Project documentation
-
+└── README.md  # Project documentation
+└── requirements.txt
 ---
 
 ## Machine Learning Pipeline
@@ -119,6 +119,7 @@ The project simulates a real-world use case where a data science team is tasked 
 This project is for academic use only. Refer to your institution’s policy on academic integrity before reuse.
 
 ---
+
 
 
 

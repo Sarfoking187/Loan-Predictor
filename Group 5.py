@@ -37,7 +37,7 @@ def Data_Import():
         st.success("✅ File uploaded successfully!")
     else:
         st.info("No file uploaded. Using sample dataset.")
-        df = pd.read_csv("Loan_Default_sample.csv")
+        df = pd.read_csv("Loan_Default.csv")
 
     os.makedirs("saved_data", exist_ok=True)
     df.to_csv("saved_data/1_raw_data.csv", index=False)
@@ -167,3 +167,4 @@ pages = {
 st.sidebar.title("📚 Navigation")
 selection = st.sidebar.radio("Go to", list(pages.keys()))
 pages[selection]()
+

@@ -86,7 +86,7 @@ The project simulates a real-world use case where a data science team is tasked 
 
 ## Instructions
 
-1. Run the app using `streamlit run loan_default_app.py`
+1. Run the app using `loan_default_ridge_finalapp.py`
 2. Use the sidebar to navigate between pages.
 3. Start from **Data Import** and proceed sequentially for best results.
 
@@ -116,6 +116,7 @@ The project simulates a real-world use case where a data science team is tasked 
 This project is for academic use only. Refer to your institution’s policy on academic integrity before reuse.
 
 ---
+
 
 
 

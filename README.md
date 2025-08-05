@@ -58,8 +58,8 @@ The project simulates a real-world use case where a data science team is tasked 
 │   ├── 6_cv_results.pkl
 │   ├── 7_trained_model.pkl
 │   ├── 8_predictions.csv
-├── loan_default_app.py           # Main Streamlit script
-└── README.md                     # Project documentation
+├── loan_default_ridge_finalapp.py # Main Streamlit script
+└── README.md                      # Project documentation
 ````
 
 ---
@@ -116,5 +116,6 @@ The project simulates a real-world use case where a data science team is tasked 
 This project is for academic use only. Refer to your institution’s policy on academic integrity before reuse.
 
 ---
+
 
 

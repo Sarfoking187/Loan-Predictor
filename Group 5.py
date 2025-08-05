@@ -119,8 +119,18 @@ def Home_Page():
 
         ---
 
+        ### What This App Covers:
+        - *Data Import and Exploration*
+        - *Cleaning, Encoding, and Preprocessing*
+        - *Feature Selection using Best Subset Selection*
+        - *Model Training with Ridge Regression*
+        - *Model Evaluation (RMSE, R², Cross-Validation)*
+        - *Interactive Prediction Interface*
+        - *Final Results Interpretation and Conclusion*
 
-        ### Instructions
+        ---
+
+        ### How to Use This App
         Use the sidebar to navigate through the project steps:
 
         1. Data Import and Overview – Explore the dataset. 
@@ -134,7 +144,7 @@ def Home_Page():
         ---
 
         *Developed by:* [Group 5 ]  
-        *Tools:* Python, Streamlit, Scikit-learn, Pandas, Numpy, Matplotlib, Seaborn, Pillow & Pickle.
+        *Tool:* Python + Streamlit + Scikit-learn
 
         """)
 
@@ -142,15 +152,15 @@ def Home_Page():
     # Members section
     st.markdown("### Team Members")
     team_members = [
-        ["1","Kingsley Sarfo", "22252461", "Project Coordinator","https://loan-predictor-hbbz24vwfzaue2qx4hwcat.streamlit.app"],
-        ["2","Francisca Sarpong", "22255796", "Data Preprocessing","https://kftalde5ypwd5a3qqejuvo.streamlit.app"],
-        ["3","George Owell", "22256146", "Model Evaluation","https://loandefaultpredictionapp-utmbic9znd7uzqqhs9zgo6.streamlit.app"],
-        ["4","Barima Addo", "22254055", "UI Testing","https://loandefaultapp-ky4yy9kmt6ehsq8jqdcgs2.streamlit.app"],
-        ["5","Marcus Akrobettoe", "11410687", "Feature Selection","https://models-loan-default-prediction.streamlit.app"]
+        ["Kingsley Sarfo", "22252461", "Project Coordinator", "https://loan-predictor-hbbz24vwfzaue2qx4hwcat.streamlit.app"],
+        ["Francisca Sarpong", "22255796", "Data Preprocessing", "https://kftalde5ypwd5a3qqejuvo.streamlit.app"],
+        ["George Owell", "22256146", "Model Evaluation", "https://loandefaultpredictionapp-utmbic9znd7uzqqhs9zgo6.streamlit.app"],
+        ["Barima Addo", "22254055", "UI Testing", "https://loandefaultapp-ky4yy9kmt6ehsq8jqdcgs2.streamlit.app"],
+        ["Marcus Akrobettoe", "11410687", "Feature Selection", "https://models-loan-default-prediction.streamlit.app"]
     ]
 
     df = pd.DataFrame(team_members,
-                      columns=["SN", "Name", "Student ID", "Role", "Deployment Link"])
+                      columns=["Name", "Student ID", "Role", "Deployment Link"])
 
     # Display as interactive table
     st.dataframe(df,
@@ -162,6 +172,14 @@ def Home_Page():
 
     # Project Overview Section
     st.markdown("""
+
+        ### Instructions:
+
+        1. Use the sidebar menu on the left to navigate between the pages.
+        2. Start from *"1. Data Upload and Overview"*.
+        3. Follow each step in sequence for best results.
+
+        ---
         ###  Dataset Information:
         - Source: [Kaggle - Loan Default Dataset](https://www.kaggle.com/datasets/yasserh/loan-default-dataset)
         - Target variable: loan_amount
@@ -189,7 +207,7 @@ def Data_Import_and_Overview_page():
     st.dataframe(df.head())
 
     # Data summary statistics
-    st.subheader("Summary Statistics")
+    st.subheader("1. Summary Statistics")
 
     # Basic stats
     col1, col2, col3 = st.columns(3)

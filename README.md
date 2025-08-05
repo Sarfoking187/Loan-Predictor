@@ -18,6 +18,24 @@ The project simulates a real-world use case where a data science team is tasked 
 - Train and evaluate a Ridge Regression model.
 - Make interactive predictions using custom inputs.
 
+
+# 📂 Project Structure
+
+```bash
+├── Loan_Default.csv              # Sample dataset (user uploaded in app)
+├── LDP.jpg                       # Logo
+├── saved_data/                   # Folder for storing intermediate artifacts
+│   ├── 1_raw_data.csv
+│   ├── 2_column_types.pkl
+│   ├── 3_preprocessor.pkl
+│   ├── 4_processed_data.csv
+│   ├── 5_best_subset_features.pkl
+│   ├── 6_cv_results.pkl
+│   ├── 7_trained_model.pkl
+│   ├── 8_predictions.csv
+├── loan_default_ridge_finalapp.py # Main Streamlit script
+└── README.md                      # Project documentation
+
 ---
 
 ## Machine Learning Pipeline
@@ -101,6 +119,7 @@ The project simulates a real-world use case where a data science team is tasked 
 This project is for academic use only. Refer to your institution’s policy on academic integrity before reuse.
 
 ---
+
 
 
 

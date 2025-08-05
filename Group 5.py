@@ -1,5 +1,4 @@
 
-
 # --- IMPORT SECTION ---
 # Standard data science and visualization libraries
 import streamlit as st  # For building the web interface
@@ -652,20 +651,63 @@ def Interactive_Prediction_page():
 
 def Results_Interpretation_And_Conclusion_page():
     st.title("7. Results Interpretation and Conclusion")
-    st.write("""
-    ## Model Performance Summary
-    The Ridge Regression model predicts expected loan default amounts based on applicant features.
-    ## Business Implications
-    - Helps assess financial risk quantitatively.
-    - Can be used to inform lending decisions and set loan limits.
-    ## Limitations
-    - Regression only captures relationships present in the training data.
-    - Model performance may vary with economic changes or unobserved factors.
-    ## Future Improvements
-    - Add more financial history, credit, or behavioral features.
-    - Use advanced regression or ensemble models for further gains.
-    """)
+    # Load the model and predictions
+    try:
+        model = load_artifact("7_trained_model.pkl")
+        predictions_df = pd.read_csv(f"{DATA_DIR}/8_predictions.csv")
+    except:
+        st.warning("Please train the model first")
+        return
 
+    y_true = predictions_df['loan_amount']
+    y_pred = predictions_df['Predicted_Amount']
+
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    r2 = r2_score(y_true, y_pred)
+    rmse_value = f"{rmse:.2f}"
+    r2_value = f"{r2:.4f}"
+
+    if hasattr(model, 'coef_'):
+        importance = pd.Series(
+            np.abs(model.coef_),
+            index=predictions_df.drop(
+                ['loan_amount', 'Predicted_Amount'],
+                axis=1).columns
+        )
+        top_features = importance.nlargest(5)
+        top_features_list = [f"{feat} ({imp:.2f})" for feat, imp in top_features.items()]
+        top_features_str = ", ".join(top_features_list)
+    else:
+        top_features_str = "N/A"
+
+    interpretation_md = f"""
+    ## Model Performance Insights
+
+    - The final Ridge Regression model achieved an RMSE of *{rmse_value}*, meaning that on average, predictions deviate from actual defaults by this amount.
+    - The R² score of *{r2_value}* indicates that the model explains approximately *{float(r2)*100:.1f}%* of the variation in loan default amounts.
+
+    ## Feature Insights
+
+    - The most important features for prediction were: {top_features_str}
+
+    ## Practical Impact
+
+    - This model can help banks identify high-risk loans, personalize loan limits, and automate risk assessment workflows.
+    - Outlier predictions (where model error is high) may reveal cases needing manual review.
+
+    ## Limitations
+
+    - The model’s accuracy depends on the quality and representativeness of the training data.
+    - It may not fully account for macroeconomic shifts, fraud, or abrupt life events impacting borrowers.
+
+    ## Future Work
+
+    - Explore ensemble models (e.g XGBoost) for potentially higher accuracy.
+    - Enhance interpretability using tools like SHAP.
+    - Update the model periodically to capture changing economic conditions and borrower behaviors.
+    """
+
+    st.markdown(interpretation_md)
 pages = {
     "Home Page": Home_Page,
     "Data Import and Overview": Data_Import_and_Overview_page,
